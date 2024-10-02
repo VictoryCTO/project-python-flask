@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "project-python-flask"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+flask = "^2.3"
+flask-sqlalchemy = "^3.0"
+flask-migrate = "^4.0"
+flask-bcrypt = "^1.0"
+alembic = "^1.13.3"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+pre-commit = "^4.0.0"
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
+
+[tool.pytest.ini_options]
+addopts = "--maxfail=1" #  --disable-warnings"
+testpaths = ["tests"]  # Only look in tests directory
+python_files = "test_auth.py"  # Test files should follow this pattern
+pythonpath = ["."]
+norecursedirs = ["migrations"]
