@@ -1,5 +1,7 @@
 from .user_routes import user_bp
+
 # Import any other blueprints you may have
+
 
 def register_blueprints(app):
     """Function to register all blueprints."""

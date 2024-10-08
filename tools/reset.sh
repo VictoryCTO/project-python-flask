@@ -1,8 +1,14 @@
 #!/bin/bash
 
-# This script is used to reset the database to the initial state
+# This script is used to reset the database to the initial state and remove
+# app cache files
 
-# move exec of the script to the directory above the tools directory 
+# Remove cache files
+find . -name "__pycache__" -exec rm -rf {} +
+find . -name "*.pyc" -exec rm -rf {} +
+
+
+# move exec of the script to the directory above the tools directory
 # regardless of where the script is called from
 cd "$(dirname "$0")/.."
 
