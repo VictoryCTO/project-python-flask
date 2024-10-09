@@ -13,45 +13,6 @@ These directions assume you will use `poetry` for dependency and environment man
 ```sh
 poetry install
 ```
-## Starting the application
-
-```sh
-export FLASK_ENV=development # use the development settings
-poetry run python app.py
-```
-
-You should see something like this:
-
-```
-/code/project-python-flask >poetry run python run.py
- * Serving Flask app 'app'
- * Debug mode: on
-WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
- * Running on http://127.0.0.1:5000
-Press CTRL+C to quit
- * Restarting with stat
- * Debugger is active!
- * Debugger PIN: 413-423-614
- ```
-
-### Exercising the API
-
-Create a user that will allow you to authenticate. For ease of using the project you submit, please do not change the credentials.
-
-```sh
-curl \
-  -X POST http://127.0.0.1:5000/register \
-  -H "Content-Type: application/json" \
-  -d '{"username":"Dev Userson", "email":"dev.userson@example.com", "password":"sosecure"}'
-```
-
-Show that the user can log in:
-
-```sh
-curl -X POST http://127.0.0.1:5000/login \
--H "Content-Type: application/json" \
--d '{"email":"dev.userson@example.com", "password":"sosecure"}'
-```
 
 ## Building the software
 
@@ -100,6 +61,46 @@ tests/test_auth.py::test_login_invalid_user PASSED                              
 
 ============================================================================================== 3 passed in 0.03s ===============================================================================================
 
+```
+
+## Starting the application
+
+```sh
+export FLASK_ENV=development # use the development settings
+poetry run python app.py
+```
+
+You should see something like this:
+
+```
+/code/project-python-flask >poetry run python run.py
+ * Serving Flask app 'app'
+ * Debug mode: on
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 413-423-614
+ ```
+
+### Exercising the API
+
+Create a user that will allow you to authenticate. For ease of using the project you submit, please do not change the credentials.
+
+```sh
+curl \
+  -X POST http://127.0.0.1:5000/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"Dev Userson", "email":"dev.userson@example.com", "password":"sosecure"}'
+```
+
+Show that the user can log in:
+
+```sh
+curl -X POST http://127.0.0.1:5000/login \
+-H "Content-Type: application/json" \
+-d '{"email":"dev.userson@example.com", "password":"sosecure"}'
 ```
 
 
