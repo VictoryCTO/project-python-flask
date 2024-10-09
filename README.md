@@ -108,8 +108,8 @@ curl -X POST http://127.0.0.1:5000/login \
 
 For each task please follow this process:
 1. Create an issue in your Github project, you are welcome to copy the text of the task provided or write your own, but _please_ use the title here as the title of your GH issue.
-1. Add at least one test to your code showing your solution works and ensuring it will continue to work as expected
-1. Make a PR to your code
+1. Add at least one test to your code showing your solution works and ensuring it will continue to work as expected.
+1. Make a PR to your code.
 1. Merge your PR when you are happy.
 
 :information_source: - All input and response should be assumed to be via `curl`. There is no expectation of a front end being created for this project.
@@ -125,17 +125,6 @@ The following are "required."  We recommend working these first and expect they 
 ### Github Action
 
 Create a Github action that runs the linting and automated tests. It is a Victory goal that humans don't look at code that is not linted to standard and passing tests unless there is a specfic reason (e.g. a draft pull request).
-
-###  Add the role entity to the model
-
-As an application admin I need to assign each user one or more roles so that they have a clear and predictable set of permissions.  I do not need to override roles at this time.
-
-Acceptance Criteria
-- Allow for the creation of one or more roles with attributes role_id, role_name and department_name
-  - the combination of role_name and department_name is unique
-- Allow for a user to be assigned one or more roles
-- Allow for a role to be assigned to one or more users.
-- Update the README.md to include how to create a role and assign a user to it in the "Getting Started" section.
 
 ### Active users
 
@@ -155,6 +144,17 @@ As a compliance officer I want to be able to check a report that tells me who my
 Accpetance Criteria
 - Return a list of users, email and their role(s)
 - Be able to get the report for all users, inactive users and/or active users
+
+###  Add the role entity to the model
+
+As an application admin I need to assign each user one or more roles so that they have a clear and predictable set of permissions.  I do not need to override roles at this time.
+
+Acceptance Criteria
+- Allow for the creation of one or more roles with attributes role_id, role_name and department_name
+  - the combination of role_name and department_name is unique
+- Allow for a user to be assigned one or more roles
+- Allow for a role to be assigned to one or more users.
+- Update the README.md to include how to create a role and assign a user to it in the "Getting Started" section.
 
 ### Fix our secrets in code issue
 
@@ -188,14 +188,14 @@ Or, you could come up approach we have not thought of. Think of this as a way to
 
 There are many issues of security with our application. You've seen above how we like to communicate tasks, so:
 - Write a ticket describing the problem from an end users perspective (As a ..., I want to ..., so that ...), then a list of acceptance criteria.
-- Implement the solution in the same way as the other taks (PR, test, etc)
+- Implement the solution in the same way as the other tasks (PR, test, etc)
 - Be sure to include anything in the README to your fellow developers if you feel documenting any changes in their behavior would be helpful.
 
 ### Improve the build
 
 Our build does some linting with `pre-commit` and runs our tests. If this is a project you are responsible for what would you add?
 - Write a ticket describing the gap in the build and the value prop for addressing it.
-- Implement the solution
+- Implement the solution.
 - Be sure to include anything in the README to help your fellow developers with set up if you feel documentation is warranted.
 
 Remember that writing the ticket is 60% of what we are looking for here. Only implement if this is something you are passionate about.
@@ -241,7 +241,7 @@ To prepare for the interview be ready to
 - discuss your overall approach around priority, documentation, etc.
 - discuss specifics of implementing requirements
 
-Please note that are often taking a position counter to your own. It is of primary importance that members of Victory teams can disagree, discuss and come to a common understanding and path forward.
+Please note that folks on the team are often taking a position counter to your own. It is of primary importance that members of Victory teams can disagree, discuss and come to a common understanding and path forward.
 
 You should walk away with a solid understanding of what it is like to work on a Victory team on a daily basis. We understand that you may not want to work the way we do.  Better for all concerned if we figure that out as early as possible.
 
