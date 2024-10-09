@@ -8,6 +8,11 @@ Ensure you can run the application locally by cloning it.
 
 These directions assume you will use `poetry` for dependency and environment management.
 
+
+## Install dependencies
+```sh
+poetry install
+```
 ## Starting the application
 
 ```sh
