@@ -256,3 +256,4 @@ We deeply appreciate the time you are taking to ensure joining Victory is of ben
 # 03 Error in workflow from Poetry version. Changed from 1.5.1 to 1.8.3.
 # 04 Pyproject.toml changed significantly since poetry.lock was last generated.
 # 05 04 push did not activate action because of md extension in paths-ignore.
+# 06 More changes, including removal of poetry caching from workflow to help find the bug.
