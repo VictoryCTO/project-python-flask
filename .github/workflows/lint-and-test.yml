@@ -33,17 +33,10 @@ jobs:
     - name: Install Poetry
       uses: snok/install-poetry@v1
       with:
-        version: 1.8.3
+        version: latest
         virtualenvs-create: true
         virtualenvs-in-project: true
-
-    - name: Load cached venv
-      id: cached-poetry-dependencies
-      uses: actions/cache@v3
-      with:
-        path: .venv
-        key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-
+   
     - name: Install dependencies
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
       run: poetry install --no-interaction --no-root
@@ -69,23 +62,18 @@ jobs:
     - name: Install Poetry
       uses: snok/install-poetry@v1
       with:
-        version: 1.8.3
+        version: latest
         virtualenvs-create: true
         virtualenvs-in-project: true
 
-    - name: Update Poetry lock file
-      run: poetry lock --no-update
-  
-    - name: Load cached venv
-      id: cached-poetry-dependencies
-      uses: actions/cache@v3
-      with:
-        path: .venv
-        key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-
     - name: Install dependencies
-      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: poetry install --no-interaction --no-root
+      run: |
+        poetry install --no-interaction --no-root
+        if [ $? -ne 0 ]; then
+          echo "Poetry install failed. Attempting to update lock file and retry..."
+          poetry lock --no-update
+          poetry install --no-interaction --no-root
+        fi
 
     - name: Run tests
       run: poetry run pytest tests
