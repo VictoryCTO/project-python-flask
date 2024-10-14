@@ -75,6 +75,11 @@ jobs:
           poetry lock --no-update
           poetry install --no-interaction --no-root
         fi
-
+        poetry add flake8 --dev
+        if [ $? -ne 0 ]; then
+          echo "Failed to add flake8. Attempting to update lock file and retry..."
+          poetry lock --no-update
+          poetry add flake8 --dev
+        fi
     - name: Run tests
       run: poetry run pytest tests
