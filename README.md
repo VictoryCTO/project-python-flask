@@ -252,4 +252,5 @@ We are going to make six figure bet on you. You are going to put your career in 
 We deeply appreciate the time you are taking to ensure joining Victory is of benefit to all concerned (yourself, Victory and our clients).
 
 # 01 Added this comment for testing purposes.
-# 02
+# 02 Post-pull of action workflow to sync local with remote.
+# 03 Error in workflow from Poetry version. Changed from 1.5.1 to 1.8.3.
