@@ -254,3 +254,4 @@ We deeply appreciate the time you are taking to ensure joining Victory is of ben
 # 01 Added this comment for testing purposes.
 # 02 Post-pull of action workflow to sync local with remote.
 # 03 Error in workflow from Poetry version. Changed from 1.5.1 to 1.8.3.
+# 04 Pyproject.toml changed significantly since poetry.lock was last generated
