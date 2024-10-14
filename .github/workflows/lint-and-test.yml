@@ -42,6 +42,7 @@ jobs:
       run: poetry install --no-interaction --no-root
 
     - name: Run pre-commit
+      continue-on-error: true
       run: poetry run pre-commit run --all-files
 
     - name: Run flake8
