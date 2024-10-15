@@ -24,6 +24,9 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
     active = db.Column(db.Boolean, default=False)  # Issue 02-Active users
+    access_level = db.Column(
+        db.String(16), default="basic", nullable=False
+    )  # "Role" - Issue 03-Access levels
 
     def __repr__(self):
         return f"<User {self.username}>"

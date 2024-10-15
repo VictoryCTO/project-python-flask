@@ -68,15 +68,54 @@ def toggle_active():
 
 
 # Route to show all users.
+#    Deprecated in favor of access-report route.
 @user_bp.route("/users", methods=["GET"])
 def users():
     users = User.query.all()
     user_list = []
     for user in users:
         user_list.append(
-            {"username": user.username, "email": user.email, "active": user.active}
+            {
+                "user": user.username,
+                "email": user.email,
+                "role": user.access_level,
+                "active": user.active,
+            }
         )
-        logger.debug(f"{user.username} | {user.email} | {user.active}")
+        logger.debug(
+            f"{user.username} | {user.email} | Active: {user.active} | Role: {user.access_level}"
+        )
+    response = json.dumps(user_list)
+    return Response(response, mimetype="application/json"), 200
+
+
+# Route to show all users.
+@user_bp.route("/access-report", methods=["POST"])
+def access_report():
+    data = request.get_json()
+    limit_to = data.get("limit_to")
+    # limit_to may be "all_users", "active_users", or "inactive_users"
+    if limit_to == "all_users":
+        users = User.query.all()
+    elif limit_to == "active_users":
+        users = User.query.filter_by(active=True).all()
+    elif limit_to == "inactive_users":
+        users = User.query.filter_by(active=False).all()
+    else:
+        users = User.query.all()
+    user_list = []
+    for user in users:
+        user_list.append(
+            {
+                "user": user.username,
+                "email": user.email,
+                "role": user.access_level,
+                "active": user.active,
+            }
+        )
+        logger.debug(
+            f"{user.username} | {user.email} | {user.access_level} | {user.active}"
+        )
     response = json.dumps(user_list)
     return Response(response, mimetype="application/json"), 200
 
