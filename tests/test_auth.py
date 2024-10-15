@@ -14,7 +14,7 @@ def test_register_user(client):
 
     # Assert that the response JSON contains the expected message
     json_data = response.get_json()
-    assert json_data["message"] == "User registered successfully!!!!"
+    assert json_data["message"] == "User registered successfully"
 
 
 def test_login_user(client):
