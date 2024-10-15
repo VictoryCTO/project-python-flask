@@ -26,13 +26,13 @@ class UserActiveStatusChange(db.Model):
     user = db.relationship("User", backref="status_changes")
 
 
-"""Allow for the creation of one or more roles with attributes
+""" Allow for the creation of one or more roles with attributes
 role_id, role_name, and department_name.
 Combination of role_name and department_name is unique
 Allow for a user to be assigned one or more roles
 and for a role to be assigned to one or more users.
 Users_roles table relies on roles_lookup
-for putting a name and dept to a role id."""
+for putting a name and dept to a role id. """
 
 
 class User(db.Model):
@@ -55,7 +55,7 @@ class User(db.Model):
         return f"<User {self.username}>"
 
 
-class UserRole(db.Model):
+class UsersRoles(db.Model):
     __tablename__ = "users_roles"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)

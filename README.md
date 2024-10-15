@@ -251,8 +251,37 @@ We are going to make six figure bet on you. You are going to put your career in 
 
 We deeply appreciate the time you are taking to ensure joining Victory is of benefit to all concerned (yourself, Victory and our clients).
 
-# 01 Added this comment for testing purposes.
-# 02 Post-pull of action workflow to sync local with remote.
-# 03 Error in workflow from Poetry version. Changed from 1.5.1 to 1.8.3.
-# 04 Pyproject.toml changed significantly since poetry.lock was last generated.
-# 05 04 push did not activate action.
+# API calls
+
+REGISTER
+Invoke-WebRequest -Uri http://127.0.0.1:5000/register -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"username":"Dev Userson", "email":"dev.userson@example.com", "password":"sosecure"}'
+
+Invoke-WebRequest -Uri http://127.0.0.1:5000/register -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"username":"Scott Swain", "email":"scott@oceanmedia.net", "password":"sosecure"}'
+
+Invoke-WebRequest -Uri http://127.0.0.1:5000/register -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"username":"Bozo Clown", "email":"bozo@oceanmedia.net", "password":"sosecure"}'
+
+Invoke-WebRequest -Uri http://127.0.0.1:5000/register -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"username":"Bruce Lee", "email":"bruce@lee.net", "password":"sosecure"}'
+
+LOGIN
+Invoke-WebRequest -Uri http://127.0.0.1:5000/login -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"email":"dev.userson@example.com", "password":"sosecure"}'
+
+TOGGLE ACTIVE
+Invoke-WebRequest -Uri http://127.0.0.1:5000/toggle-active -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"email":"dev.userson@example.com"}'
+
+SHOW ALL USERS (deprecated to the next two calls)
+Invoke-WebRequest -Uri http://127.0.0.1:5000/users -Method GET -Headers @{"Content-Type" = "application/json"}
+
+SHOW ALL USERS with ROLES
+Invoke-WebRequest -Uri http://127.0.0.1:5000/users-roles -Method GET -Headers @{"Content-Type" = "application/json"}
+
+ACCESS REPORT
+Invoke-WebRequest -Uri http://127.0.0.1:5000/access-report -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"limit_to":"all_users"}'
+
+DELETE USER
+Invoke-WebRequest -Uri http://127.0.0.1:5000/delete-user -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"email":"scott@oceanmedia.net"}'
+
+CREATE ROLE(S)
+Invoke-WebRequest -Uri http://127.0.0.1:5000/create-roles -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"roles_depts":["Senior Dev,Getting Started", "Dev,Getting Started"]}'
+
+ASSIGN ROLE(S)
+Invoke-WebRequest -Uri http://127.0.0.1:5000/assign-roles -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"emails_roles_depts":["dev.userson@example.com,Senior Dev,Getting Started", "scott@oceanmedia.net,Dev,Getting Started"]}'
