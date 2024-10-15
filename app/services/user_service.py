@@ -1,4 +1,4 @@
-from ..models import User
+from ..models import User, UserActiveStatusChange
 from ..extensions import db, bcrypt
 
 
@@ -25,3 +25,9 @@ def check_password(email, password):
         return True
     else:
         return False
+
+
+def log_status_change(user_id, new_status):
+    status_change = UserActiveStatusChange(id_user=user_id, status=new_status)
+    db.session.add(status_change)
+    db.session.commit()

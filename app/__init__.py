@@ -1,7 +1,6 @@
 from flask import Flask
 from .extensions import db, migrate, bcrypt
 from .config import Config
-from .routes import register_blueprints
 
 
 def create_app(config_class=Config):
@@ -13,7 +12,12 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     bcrypt.init_app(app)
 
+    # Import models
+    from .models import User, UserActiveStatusChange
+
     # Register blueprints
+    from .routes import register_blueprints
+
     register_blueprints(app)
 
     return app
