@@ -1,6 +1,10 @@
 import os
+from dotenv import load_dotenv
 from app import create_app, db
 from app.config import DevelopmentConfig, ProductionConfig
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Set up the app
 config_class = (
