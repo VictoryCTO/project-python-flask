@@ -21,7 +21,7 @@ def register():
 
     result = create_user(username, email, password)
 
-    if "message" in result and result["message"] == "User registered":
+    if "message" in result and result["message"] == "User registered successfully":
         return jsonify(result), 201
     else:
         return jsonify(result), 400
@@ -32,6 +32,11 @@ def login():
     data = request.get_json()
     email = data.get("email")
     password = data.get("password")
+
+    if not email:
+        return jsonify({"message": "Email is required"}), 400
+    if not password:
+        return jsonify({"message": "Password is required"}), 400
 
     user = User.query.filter_by(email=email).first()
     if user and user.is_active and check_password(email, password):

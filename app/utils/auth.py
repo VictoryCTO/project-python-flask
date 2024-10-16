@@ -1,7 +1,7 @@
 import jwt
 from flask import request, jsonify
 from functools import wraps
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from ..models import User
 from ..extensions import db
 
@@ -17,7 +17,7 @@ def generate_jwt(user):
     payload = {
         "user_id": user.id,
         "role": user.role,
-        "exp": datetime.utcnow() + timedelta(hours=1),
+        "exp": datetime.now(timezone.utc) + timedelta(hours=1),
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
     return token

@@ -1,9 +1,15 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from ..models import User
 from ..extensions import db, bcrypt
 
 
 def create_user(username, email, password):
+    required_fields = {"username": username, "email": email, "password": password}
+
+    for field_name, value in required_fields.items():
+        if not value:
+            return {"message": f"{field_name.capitalize()} is required"}, 400
+
     existing_user = User.query.filter(
         (User.email == email) | (User.username == username)
     ).first()
@@ -17,7 +23,7 @@ def create_user(username, email, password):
     )
     db.session.add(new_user)
     db.session.commit()
-    return {"message": "User registered", "username": new_user.username}
+    return {"message": "User registered successfully", "email": new_user.email}
 
 
 def check_password(email, password):
@@ -35,7 +41,9 @@ def check_password(email, password):
 
 def toggle_user_status(identifier, activate):
     if isinstance(identifier, int):
-        user = User.query.get(identifier)
+        user = db.session.get(
+            User, identifier
+        )  # Use Session.get() instead of Query.get()
     else:
         return {"message": "Invalid identifier type"}, 400
 
@@ -43,7 +51,9 @@ def toggle_user_status(identifier, activate):
         return {"message": "User not found"}, 404
 
     user.is_active = activate
-    user.inactivated_on = None if activate else datetime.utcnow()
+    user.inactivated_on = (
+        None if activate else datetime.now(timezone.utc)
+    )  # Use timezone-aware datetime
 
     db.session.commit()
 
