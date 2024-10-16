@@ -21,20 +21,28 @@ user_bp = Blueprint("user_bp", __name__)
 # Route to register a new user.
 @user_bp.route("/register", methods=["POST"])
 def register():
-    # Add user authentication
+    # Add user authentication & session handling
     data = request.get_json()
     username = data.get("username")
     email = data.get("email")
     password = data.get("password")
     # status = defaults to inactive
+    # check to see if user already exists
+    user = User.query.filter_by(email=email).first()
+    if user is not None:
+        return jsonify({"message": "User email already exists"}), 409
+    user = User.query.filter_by(username=username).first()
+    if user is not None:
+        return jsonify({"message": "Username already exists"}), 409
     user = create_user(username, email, password)
+    logger.debug(f"{user.username} with {user.email} created.")
     return jsonify({f"message": "User " + username + " registered successfully"}), 201
 
 
 # Route to log in a user.
 @user_bp.route("/login", methods=["POST"])
 def login():
-    # Add user authentication
+    # Add user authentication & session handling
     data = request.get_json()
     email = data.get("email")
     password = data.get("password")
@@ -44,17 +52,54 @@ def login():
         return jsonify({"message": "Invalid credentials"}), 401
 
 
-# Dummy profile route for the user.
-@user_bp.route("/profile", methods=["GET"])
+# Profile route for the user.
+@user_bp.route("/profile", methods=["POST"])
 def profile():
-    # In a real system, you would have authentication and user session handling
-    return jsonify({"message": "User profile information"}), 200
+    # Add user authentication & session handling
+    data = request.get_json()
+    email = data.get("email")
+    username = data.get("username")
+    """ If email is not provided, use username to get user_id.
+    If username is not provided, use email.
+    If neither, return 400."""
+    if (email is None or email == "") and (username is None or username == ""):
+        return jsonify({"message": "Email or username required"}), 400
+    elif email is None or email == "":
+        user = User.query.filter_by(username=username).first()  # Get user_id
+    else:
+        user = User.query.filter_by(email=email).first()
+    if user is None:
+        return jsonify({"message": "User not found"}), 404
+    else:
+        # Get user profile information
+
+        # Get the roles and departments using the users_roles table
+        roles_depts = (
+            db.session.query(RolesLookup.role_name, RolesLookup.department_name)
+            .join(UsersRoles, RolesLookup.id == UsersRoles.role_id)
+            .filter(UsersRoles.user_id == user.id)
+            .all()
+        )
+        roles_list = []
+        for role_dept in roles_depts:
+            roles_list.append(f"{role_dept[0]}/{role_dept[1]}")
+
+        # Build the user profile string
+        profile = (
+            f"Username: {user.username}\n"
+            f"email: {user.email}\n"
+            f"active: {user.active}\n"
+            f"roles: {str(roles_list)}\n"
+        )
+        logger.debug(profile)
+
+        return jsonify({"message": "User profile information" + profile}), 200
 
 
 # Route to hit to toggle active/inactive status of a user.
 @user_bp.route("/toggle-active", methods=["POST"])
 def toggle_active():
-    # Add user authentication
+    # Add user authentication & session handling
     data = request.get_json()
     email = data.get("email")
     user = User.query.filter_by(email=email).first()
@@ -74,7 +119,7 @@ def toggle_active():
 #    Deprecated in favor of access-report route.
 @user_bp.route("/users", methods=["GET"])
 def users():
-    # Add user authentication
+    # Add user authentication & session handling
     users = User.query.all()
     user_list = []
     for user in users:
@@ -96,7 +141,7 @@ def users():
 # Route to show all users.
 @user_bp.route("/access-report", methods=["POST"])
 def access_report():
-    # Add user authentication
+    # Add user authentication & session handling
     data = request.get_json()
     limit_to = data.get("limit_to")
     # limit_to may be "all_users", "active_users", or "inactive_users"
@@ -128,7 +173,7 @@ def access_report():
 # Route to show all users and their roles.
 @user_bp.route("/users-roles", methods=["GET"])
 def users_roles():
-    # Add user authentication
+    # Add user authentication & session handling
     users = User.query.all()
     user_list = []
     for user in users:
@@ -162,7 +207,7 @@ def users_roles():
 # Route to delete a user.
 @user_bp.route("/delete-user", methods=["POST"])
 def delete_user():
-    # Add user authentication
+    # Add user authentication & session handling
     data = request.get_json()
     email = data.get("email")
     user = User.query.filter_by(email=email).first()
@@ -186,7 +231,7 @@ Combination of role_name and department_name is unique. """
 
 @user_bp.route("/create-roles", methods=["POST"])
 def create_roles():
-    # Add user authentication
+    # Add user authentication & session handling
     """POST looks like:
     Invoke-WebRequest -Uri http://127.0.0.1:5000/create-roles -Method POST -Headers @{"Content-Type" = "application/json"}
     -Body '{"role_dept":"dev,accounting", "role_dept":"admin,logistics"}'"""
@@ -258,7 +303,7 @@ def assign_roles():
         # Assign the role to the user
         user = User.query.filter_by(email=user_email).first()
         if user is None:
-            logger.debug(f"User with email {user_email} not found")
+            logger.debug(f"User with email {user_email} not found.")
             continue
 
         user_role_exists = UsersRoles.query.filter_by(
@@ -269,4 +314,5 @@ def assign_roles():
             db.session.add(user_role)
 
     db.session.commit()
+    logger.debug(f"Role(s) assigned.")
     return jsonify({"message": "Roles assigned"}), 200
