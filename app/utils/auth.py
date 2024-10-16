@@ -9,7 +9,6 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 def generate_jwt(user):
@@ -26,7 +25,9 @@ def generate_jwt(user):
 def decode_jwt(token):
     """Decode a JWT token."""
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        payload = jwt.decode(
+            token, current_app.config["SECRET_KEY"], algorithms=["HS256"]
+        )
         return payload
     except jwt.ExpiredSignatureError:
         return None

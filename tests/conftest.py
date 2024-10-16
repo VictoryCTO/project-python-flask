@@ -1,16 +1,16 @@
 import pytest
 from app import create_app
 from app.extensions import db
-from app.config import TestingConfig
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
 
 
 @pytest.fixture
 def app():
-    # Create the app with the testing configuration
-    app = create_app(config_class=TestingConfig)
+    # Create the app using the loaded environment configuration
+    app = create_app()
 
     with app.app_context():
         db.create_all()  # Create tables
