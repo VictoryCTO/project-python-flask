@@ -7,6 +7,7 @@ import sys
 import json
 
 # Configure logger to print to shell.
+#   (move this to a separate file so it can be referenced by multiple modules)
 logger = logging.getLogger("alembic.env")
 handler = logging.StreamHandler(sys.stdout)
 handler.setLevel(logging.DEBUG)

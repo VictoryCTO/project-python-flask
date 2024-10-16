@@ -14,6 +14,48 @@ These directions assume you will use `poetry` for dependency and environment man
 poetry install
 ```
 
+## Set up your secrets
+
+### Create environment file
+Create a file named .env in your project root.
+Contents:
+```
+SECRET_KEY=mysecret
+DATABASE_URI=sqlite:///users.db
+TEST_DATABASE_URI=sqlite:///:memory:
+FLASK_ENV=development
+```
+Note: Changes to the values in this file will be cached, so be sure to restart the application to get new values.
+
+### Modify config.py
+This file resides in the /project root/app folder.
+Notice the following function accepts two arguments:
+```
+os.getenv(key, default value)
+```
+Depending on how secure you want your application to be, you may wish to modify the second argument to be less revealing, like so:
+```
+SECRET_KEY = os.getenv("SECRET_KEY", "mysecret")
+# would change to:
+SECRET_KEY = os.getenv("SECRET_KEY", "notmysecret")
+```
+
+### Make sure your .env file is not uploaded to GitHub
+Find the .gitignore file.
+It is one folder "up" from your project root folder.
+In that file, look for the # Environments section.
+It should have at least the exclusions you see here:
+```
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+```
+
 ## Building the software
 
 ### Linting
@@ -252,45 +294,61 @@ We are going to make six figure bet on you. You are going to put your career in 
 We deeply appreciate the time you are taking to ensure joining Victory is of benefit to all concerned (yourself, Victory and our clients).
 
 # Users in database (some have roles assigned, some don't)
-
 See API call below titled "SHOW ALL USERS with ALL ROLES"
-
-Dev Userson | dev.userson@example.com | Active: False | Roles: ['Senior Dev/Getting Started']
-Bruce Lee | bruce@lee.net | Active: False | Roles: []
-Scott Swain | scott@oceanmedia.net | Active: False | Roles: ['Dev/Getting Started']
+- Dev Userson | dev.userson@example.com | Active: False | Roles: ['Senior Dev/Getting Started']
+- Bruce Lee | bruce@lee.net | Active: False | Roles: []
+- Scott Swain | scott@oceanmedia.net | Active: False | Roles: ['Dev/Getting Started']
 
 # API calls
 
-Dev Userson | dev.userson@example.com | Active: False | Roles: ['Senior Dev/Getting Started']
-Bruce Lee | bruce@lee.net | Active: False | Roles: []
-Scott Swain | scott@oceanmedia.net | Active: False | Roles: ['Dev/Getting Started']
+```
+# REGISTER
+curl -X POST http://127.0.0.1:5000/register \
+     -H "Content-Type: application/json" \
+     -d '{"username":"Bozo Clown", "email":"bozo@oceanmedia.net", "password":"sosecure"}'
 
-REGISTER
-Invoke-WebRequest -Uri http://127.0.0.1:5000/register -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"username":"Bozo Clown", "email":"bozo@oceanmedia.net", "password":"sosecure"}'
+# LOGIN
+curl -X POST http://127.0.0.1:5000/login \
+     -H "Content-Type: application/json" \
+     -d '{"email":"dev.userson@example.com", "password":"sosecure"}'
 
-LOGIN
-Invoke-WebRequest -Uri http://127.0.0.1:5000/login -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"email":"dev.userson@example.com", "password":"sosecure"}'
+# TOGGLE ACTIVE
+curl -X POST http://127.0.0.1:5000/toggle-active \
+     -H "Content-Type: application/json" \
+     -d '{"email":"dev.userson@example.com"}'
 
-TOGGLE ACTIVE
-Invoke-WebRequest -Uri http://127.0.0.1:5000/toggle-active -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"email":"dev.userson@example.com"}'
+# SHOW USER PROFILE
+curl -X POST http://127.0.0.1:5000/profile \
+     -H "Content-Type: application/json" \
+     -d '{"username":"Scott Swain", "email":""}'
 
-SHOW USER PROFILE
-Invoke-WebRequest -Uri http://127.0.0.1:5000/profile -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"username":"Scott Swain", "email":""}'
+# SHOW ALL USERS (deprecated)
+curl -X GET http://127.0.0.1:5000/users \
+     -H "Content-Type: application/json"
 
-SHOW ALL USERS (deprecated to the next two calls)
-Invoke-WebRequest -Uri http://127.0.0.1:5000/users -Method GET -Headers @{"Content-Type" = "application/json"}
+# SHOW ALL USERS with ALL ROLES
+curl -X GET http://127.0.0.1:5000/users-roles \
+     -H "Content-Type: application/json"
 
-SHOW ALL USERS with ALL ROLES
-Invoke-WebRequest -Uri http://127.0.0.1:5000/users-roles -Method GET -Headers @{"Content-Type" = "application/json"}
+# ACCESS REPORT
+# (Note: can replace "all_users" below with "active_users" or "inactive_users")
+curl -X POST http://127.0.0.1:5000/access-report \
+     -H "Content-Type: application/json" \
+     -d '{"limit_to":"all_users"}'
 
-ACCESS REPORT
-Invoke-WebRequest -Uri http://127.0.0.1:5000/access-report -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"limit_to":"all_users"}'
+# DELETE USER
+curl -X POST http://127.0.0.1:5000/delete-user \
+     -H "Content-Type: application/json" \
+     -d '{"email":"bozo@oceanmedia.net"}'
 
-DELETE USER
-Invoke-WebRequest -Uri http://127.0.0.1:5000/delete-user -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"email":"bozo@oceanmedia.net"}'
+# CREATE ROLE(S)
+curl -X POST http://127.0.0.1:5000/create-roles \
+     -H "Content-Type: application/json" \
+     -d '{"roles_depts":["Senior Dev,Getting Started", "Dev,Getting Started"]}'
 
-CREATE ROLE(S)
-Invoke-WebRequest -Uri http://127.0.0.1:5000/create-roles -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"roles_depts":["Senior Dev,Getting Started", "Dev,Getting Started"]}'
-
-ASSIGN ROLE(S)
-Invoke-WebRequest -Uri http://127.0.0.1:5000/assign-roles -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"emails_roles_depts":["dev.userson@example.com,Senior Dev,Getting Started", "scott@oceanmedia.net,Dev,Getting Started"]}'
+# ASSIGN ROLE(S)
+# (Note: any number of users can be assigned any number of role/dept combinations.)
+curl -X POST http://127.0.0.1:5000/assign-roles \
+     -H "Content-Type: application/json" \
+     -d '{"emails_roles_depts":["dev.userson@example.com,Senior Dev,Getting Started", "scott@oceanmedia.net,Dev,Getting Started", "scott@oceanmedia.net,Dev,Finance Dept"]}'
+```
