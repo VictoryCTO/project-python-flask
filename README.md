@@ -145,6 +145,65 @@ curl -X POST http://127.0.0.1:5000/login \
 -d '{"email":"dev.userson@example.com", "password":"sosecure"}'
 ```
 
+# Users in database (some have roles assigned, some don't)
+See API call below titled "SHOW ALL USERS with ALL ROLES"
+- Dev Userson | dev.userson@example.com | Active: False | Roles: ['Senior Dev/Getting Started']
+- Bruce Lee | bruce@lee.net | Active: False | Roles: []
+- Scott Swain | scott@oceanmedia.net | Active: False | Roles: ['Dev/Getting Started']
+
+# API calls
+
+```
+# REGISTER
+curl -X POST http://127.0.0.1:5000/register \
+     -H "Content-Type: application/json" \
+     -d '{"username":"Bozo Clown", "email":"bozo@oceanmedia.net", "password":"sosecure"}'
+
+# LOGIN
+curl -X POST http://127.0.0.1:5000/login \
+     -H "Content-Type: application/json" \
+     -d '{"email":"dev.userson@example.com", "password":"sosecure"}'
+
+# TOGGLE ACTIVE
+curl -X POST http://127.0.0.1:5000/toggle-active \
+     -H "Content-Type: application/json" \
+     -d '{"email":"dev.userson@example.com"}'
+
+# SHOW USER PROFILE
+curl -X POST http://127.0.0.1:5000/profile \
+     -H "Content-Type: application/json" \
+     -d '{"username":"Scott Swain", "email":""}'
+
+# SHOW ALL USERS (deprecated)
+curl -X GET http://127.0.0.1:5000/users \
+     -H "Content-Type: application/json"
+
+# SHOW ALL USERS with ALL ROLES
+curl -X GET http://127.0.0.1:5000/users-roles \
+     -H "Content-Type: application/json"
+
+# ACCESS REPORT
+# (Note: can replace "all_users" below with "active_users" or "inactive_users")
+curl -X POST http://127.0.0.1:5000/access-report \
+     -H "Content-Type: application/json" \
+     -d '{"limit_to":"all_users"}'
+
+# DELETE USER
+curl -X POST http://127.0.0.1:5000/delete-user \
+     -H "Content-Type: application/json" \
+     -d '{"email":"bozo@oceanmedia.net"}'
+
+# CREATE ROLE(S)
+curl -X POST http://127.0.0.1:5000/create-roles \
+     -H "Content-Type: application/json" \
+     -d '{"roles_depts":["Senior Dev,Getting Started", "Dev,Getting Started"]}'
+
+# ASSIGN ROLE(S)
+# (Note: any number of users can be assigned any number of role/dept combinations.)
+curl -X POST http://127.0.0.1:5000/assign-roles \
+     -H "Content-Type: application/json" \
+     -d '{"emails_roles_depts":["dev.userson@example.com,Senior Dev,Getting Started", "scott@oceanmedia.net,Dev,Getting Started", "scott@oceanmedia.net,Dev,Finance Dept"]}'
+```
 
 # Tasks
 
@@ -292,63 +351,3 @@ You should walk away with a solid understanding of what it is like to work on a 
 We are going to make six figure bet on you. You are going to put your career in our hands and expect us to help you grow professionally.
 
 We deeply appreciate the time you are taking to ensure joining Victory is of benefit to all concerned (yourself, Victory and our clients).
-
-# Users in database (some have roles assigned, some don't)
-See API call below titled "SHOW ALL USERS with ALL ROLES"
-- Dev Userson | dev.userson@example.com | Active: False | Roles: ['Senior Dev/Getting Started']
-- Bruce Lee | bruce@lee.net | Active: False | Roles: []
-- Scott Swain | scott@oceanmedia.net | Active: False | Roles: ['Dev/Getting Started']
-
-# API calls
-
-```
-# REGISTER
-curl -X POST http://127.0.0.1:5000/register \
-     -H "Content-Type: application/json" \
-     -d '{"username":"Bozo Clown", "email":"bozo@oceanmedia.net", "password":"sosecure"}'
-
-# LOGIN
-curl -X POST http://127.0.0.1:5000/login \
-     -H "Content-Type: application/json" \
-     -d '{"email":"dev.userson@example.com", "password":"sosecure"}'
-
-# TOGGLE ACTIVE
-curl -X POST http://127.0.0.1:5000/toggle-active \
-     -H "Content-Type: application/json" \
-     -d '{"email":"dev.userson@example.com"}'
-
-# SHOW USER PROFILE
-curl -X POST http://127.0.0.1:5000/profile \
-     -H "Content-Type: application/json" \
-     -d '{"username":"Scott Swain", "email":""}'
-
-# SHOW ALL USERS (deprecated)
-curl -X GET http://127.0.0.1:5000/users \
-     -H "Content-Type: application/json"
-
-# SHOW ALL USERS with ALL ROLES
-curl -X GET http://127.0.0.1:5000/users-roles \
-     -H "Content-Type: application/json"
-
-# ACCESS REPORT
-# (Note: can replace "all_users" below with "active_users" or "inactive_users")
-curl -X POST http://127.0.0.1:5000/access-report \
-     -H "Content-Type: application/json" \
-     -d '{"limit_to":"all_users"}'
-
-# DELETE USER
-curl -X POST http://127.0.0.1:5000/delete-user \
-     -H "Content-Type: application/json" \
-     -d '{"email":"bozo@oceanmedia.net"}'
-
-# CREATE ROLE(S)
-curl -X POST http://127.0.0.1:5000/create-roles \
-     -H "Content-Type: application/json" \
-     -d '{"roles_depts":["Senior Dev,Getting Started", "Dev,Getting Started"]}'
-
-# ASSIGN ROLE(S)
-# (Note: any number of users can be assigned any number of role/dept combinations.)
-curl -X POST http://127.0.0.1:5000/assign-roles \
-     -H "Content-Type: application/json" \
-     -d '{"emails_roles_depts":["dev.userson@example.com,Senior Dev,Getting Started", "scott@oceanmedia.net,Dev,Getting Started", "scott@oceanmedia.net,Dev,Finance Dept"]}'
-```
