@@ -2,6 +2,9 @@ import pytest
 from app import create_app
 from app.extensions import db
 from app.config import TestingConfig
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 @pytest.fixture
