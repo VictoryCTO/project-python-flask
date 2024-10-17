@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, Response, make_response
 from ..models import User
 from ..extensions import db
 from ..services.user_service import (
@@ -6,8 +6,10 @@ from ..services.user_service import (
     check_password,
     toggle_user_status,
     make_user_admin,
+    get_user_report_csv,
 )
 from ..utils.auth import generate_jwt, admin_required
+import csv
 
 user_bp = Blueprint("user_bp", __name__)
 
@@ -84,3 +86,25 @@ def make_admin():
 
     result, status_code = make_user_admin(user_id=user_id)
     return jsonify(result), status_code
+
+
+@user_bp.route("/user_report", methods=["GET"])
+def user_report():
+    """
+    Returns a CSV report of users with their email, role, and active/inactive status.
+    Supports filtering by active or inactive users via query parameters.
+    """
+    active_status = request.args.get("active_status")
+
+    if active_status == "active":
+        csv_data = get_user_report_csv(active_status=True)
+    elif active_status == "inactive":
+        csv_data = get_user_report_csv(active_status=False)
+    else:
+        csv_data = get_user_report_csv()
+
+    response = make_response(csv_data)
+    response.headers["Content-Disposition"] = "attachment; filename=user_report.csv"
+    response.headers["Content-Type"] = "text/csv"
+
+    return response

@@ -2,6 +2,7 @@ import pytest
 from app.models import User, Role
 from app.extensions import db
 from app.utils.auth import generate_jwt
+from io import StringIO
 
 
 @pytest.fixture
@@ -217,3 +218,57 @@ def test_login_inactive_user(client, regular_user):
 
     json_data = response.get_json()
     assert json_data["message"] == "Account is inactive"
+
+
+@pytest.fixture
+def sample_users():
+    """Fixture to create sample users and roles in the database."""
+    user1 = User(
+        username="User1", email="user1@example.com", password="password", is_active=True
+    )
+    user2 = User(
+        username="User2",
+        email="user2@example.com",
+        password="password",
+        is_active=False,
+    )
+    role1 = Role(role_name="admin", department_name="IT")
+    role2 = Role(role_name="user", department_name="Sales")
+
+    user1.roles.append(role1)
+    user2.roles.append(role2)
+
+    db.session.add(user1)
+    db.session.add(user2)
+    db.session.commit()
+
+    return [user1, user2]
+
+
+def test_user_report_all(client, sample_users):
+    """Test fetching all users."""
+    response = client.get("/user_report")
+    assert response.status_code == 200
+    assert "Username,Email,Role,Active,Inactivated On" in response.data.decode("utf-8")
+    assert "User1,user1@example.com" in response.data.decode("utf-8")
+    assert "User2,user2@example.com" in response.data.decode("utf-8")
+
+
+def test_user_report_active(client, sample_users):
+    """Test fetching only active users."""
+    response = client.get("/user_report?active_status=active")
+    assert response.status_code == 200
+    csv_data = response.data.decode("utf-8")
+    assert "User1,user1@example.com" in csv_data
+    assert "User3,user3@example.com" not in csv_data
+
+
+def test_user_report_inactive(client, sample_users):
+    """Test fetching only inactive users."""
+    response = client.get("/user_report?active_status=inactive")
+    assert response.status_code == 200
+    csv_data = response.data.decode("utf-8")
+
+    assert "User1,user1@example.com" not in csv_data
+
+    assert "User2,user2@example.com" in csv_data

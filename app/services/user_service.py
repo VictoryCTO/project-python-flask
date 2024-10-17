@@ -1,6 +1,8 @@
 from datetime import datetime, timezone
 from ..models import User, Role
 from ..extensions import db, bcrypt
+import csv
+import io
 
 
 def create_user(username, email, password):
@@ -78,3 +80,24 @@ def make_user_admin(user_id=None):
     user.roles.append(admin_role)
     db.session.commit()
     return {"message": f"User {user.username} has been made an admin."}, 200
+
+
+def get_user_report_csv(active_status=None):
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    writer.writerow(["Username", "Email", "Role", "Active", "Inactivated On"])
+
+    query = User.query
+
+    if active_status is not None:
+        query = query.filter_by(is_active=active_status)
+
+    users = query.all()
+
+    for user in users:
+        writer.writerow(
+            [user.username, user.email, user.roles, user.is_active, user.inactivated_on]
+        )
+
+    return output.getvalue()
