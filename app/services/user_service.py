@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from ..models import User
+from ..models import User, Role
 from ..extensions import db, bcrypt
 
 
@@ -41,9 +41,7 @@ def check_password(email, password):
 
 def toggle_user_status(identifier, activate):
     if isinstance(identifier, int):
-        user = db.session.get(
-            User, identifier
-        )  # Use Session.get() instead of Query.get()
+        user = db.session.get(User, identifier)
     else:
         return {"message": "Invalid identifier type"}, 400
 
@@ -62,12 +60,21 @@ def toggle_user_status(identifier, activate):
 
 
 def make_user_admin(user_id=None):
+    """Assign the 'admin' role to a user."""
     if user_id:
         user = User.query.get(user_id)
 
     if not user:
         return {"message": "User not found"}, 404
 
-    user.role = "admin"
+    admin_role = Role.query.filter_by(role_name="admin").first()
+
+    if not admin_role:
+        return {"message": "Admin role not found. Please create it first."}, 400
+
+    if admin_role in user.roles:
+        return {"message": "User is already an admin."}, 400
+
+    user.roles.append(admin_role)
     db.session.commit()
     return {"message": f"User {user.username} has been made an admin."}, 200
