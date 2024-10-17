@@ -1,20 +1,28 @@
 import pytest
-from app.models import User
+from app.models import User, Role
 from app.extensions import db
 from app.utils.auth import generate_jwt
 
 
 @pytest.fixture
 def admin_user():
-    """Fixture to create an admin user."""
+    """Fixture to create an admin user with the 'admin' role."""
     user = User(
         username="admin",
         email="admin@example.com",
         password="hashedpassword",
         is_active=True,
-        role="admin",
     )
     db.session.add(user)
+    db.session.commit()
+
+    admin_role = Role.query.filter_by(role_name="admin").first()
+    if not admin_role:
+        admin_role = Role(role_name="admin", department_name="general")
+        db.session.add(admin_role)
+        db.session.commit()
+
+    user.roles.append(admin_role)
     db.session.commit()
     return user
 

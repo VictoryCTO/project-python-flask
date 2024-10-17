@@ -2,9 +2,8 @@ import jwt
 from flask import request, jsonify, current_app
 from functools import wraps
 from datetime import datetime, timedelta, timezone
-from ..models import User
+from ..models import User, Role
 from ..extensions import db
-
 from dotenv import load_dotenv
 import os
 
@@ -13,9 +12,10 @@ load_dotenv()
 
 def generate_jwt(user):
     """Generate a JWT token for a user."""
+    roles = [role.role_name for role in user.roles]
     payload = {
         "user_id": user.id,
-        "role": user.role,
+        "roles": roles,  # Store the roles as a list in the payload
         "exp": datetime.now(timezone.utc) + timedelta(hours=1),
     }
     token = jwt.encode(payload, current_app.config["SECRET_KEY"], algorithm="HS256")
@@ -36,7 +36,7 @@ def decode_jwt(token):
 
 
 def admin_required(f):
-    """Decorator to check if the user has an admin role."""
+    """Decorator to check if the user has an 'admin/super' role."""
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -47,8 +47,12 @@ def admin_required(f):
         token = token.split(" ")[1]  # Assume token is in the format "Bearer <token>"
         payload = decode_jwt(token)
 
-        if not payload or payload.get("role") != "admin":
-            return jsonify({"message": "Admin access required"}), 403
+        if not payload:
+            return jsonify({"message": "Invalid or expired token"}), 403
+
+        # Check if 'admin' or 'super' is in the user's roles
+        if not any(role in payload.get("roles", []) for role in ["admin", "super"]):
+            return jsonify({"message": "Admin or Super access required"}), 403
 
         return f(*args, **kwargs)
 

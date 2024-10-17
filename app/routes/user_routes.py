@@ -29,24 +29,29 @@ def register():
 
 @user_bp.route("/login", methods=["POST"])
 def login():
-    data = request.get_json()
-    email = data.get("email")
-    password = data.get("password")
+    try:
+        data = request.get_json()
+        email = data.get("email")
+        password = data.get("password")
 
-    if not email:
-        return jsonify({"message": "Email is required"}), 400
-    if not password:
-        return jsonify({"message": "Password is required"}), 400
+        if not email:
+            return jsonify({"message": "Email is required"}), 400
+        if not password:
+            return jsonify({"message": "Password is required"}), 400
 
-    user = User.query.filter_by(email=email).first()
-    if user and user.is_active and check_password(email, password):
-        token = generate_jwt(user)
+        user = User.query.filter_by(email=email).first()
 
-        return jsonify({"message": "Login successful", "token": token}), 200
-    elif user and not user.is_active:
-        return jsonify({"message": "Account is inactive"}), 403
-    else:
-        return jsonify({"message": "Invalid credentials"}), 401
+        if user and user.is_active and check_password(email, password):
+            token = generate_jwt(user)
+            return jsonify({"message": "Login successful", "token": token}), 200
+        elif user and not user.is_active:
+            return jsonify({"message": "Account is inactive"}), 403
+        else:
+            return jsonify({"message": "Invalid credentials"}), 401
+
+    except Exception as e:
+        print(f"Error during login: {e}")
+        return jsonify({"message": "An unexpected error occurred"}), 500
 
 
 @user_bp.route("/profile", methods=["GET"])
@@ -77,5 +82,5 @@ def make_admin():
     data = request.get_json()
     user_id = data.get("user_id")
 
-    result, status_code = make_user_admin(user_id=user_id, email=email)
+    result, status_code = make_user_admin(user_id=user_id)
     return jsonify(result), status_code
