@@ -1,0 +1,239 @@
+GitHub Issue: Remove Hardcoded Secrets from config.py
+Title:
+  Remove Hardcoded Secrets from config.py and Use Environment Variables for Sensitive Information
+Description:
+  As part of our security and compliance efforts, we need to remove all hardcoded credentials, API keys, and other sensitive information from the config.py file. These secrets are currently stored in plain text, which poses a security risk. According to OWASP best practices, sensitive information should be kept outside source control and loaded securely via environment variables.
+Problem:
+  SECRET_KEY and database credentials (e.g., SQLALCHEMY_DATABASE_URI) are stored in plain text in the config.py file.
+  This approach increases the risk of exposing sensitive information if the codebase is accessed by unauthorized individuals or mistakenly pushed to public repositories.
+Proposed Solution:
+  Replace hardcoded SECRET_KEY and other secrets with environment variables.
+  Document the required environment variables in the README or another documentation file.
+  Ensure that development, testing, and production environments can load these variables securely (e.g., using .env files for local development).
+Acceptance Criteria:
+  All secrets are loaded from environment variables.
+  A secure fallback for the SECRET_KEY is removed from the source code.
+  Ensure that the application works across different environments (development, testing, production) with secure configuration.
+  Update .gitignore to exclude sensitive files like .env.
+  Add documentation to guide developers on setting up their environment variables.
+
+
+########################################################
+
+Feature Request: Implement the /profile Route
+Context
+  We currently need to implement a profile route in the application that allows authenticated users to view their profile information. The route should be secure and return relevant user data such as username, email, and roles.
+Requirements:
+  Route: /profile
+  Method: GET
+Authentication:
+  The route should be protected. Only authenticated users should be able to access their own profile.
+  The JWT token provided in the Authorization header should be used to identify the logged-in user.
+Response Data:
+  Username
+  Email
+  List of Roles
+  Status Codes:
+    200 OK: Returned if the profile data is retrieved successfully.
+    401 Unauthorized: Returned if the request lacks proper authorization (e.g., no token, invalid token).
+    403 Forbidden: Returned if a user tries to access a profile other than their own.
+Acceptance Criteria:
+  Authenticated Access Only: Only authenticated users should be able to access this endpoint. The authentication is based on JWT tokens passed in the request’s Authorization header.
+  Retrieve User Data: Once authenticated, the user can retrieve their profile information including their username, email, and roles.
+  Security: Ensure the token validation is done securely, and users cannot view other users’ profiles.
+  Error Handling:
+    Handle cases where the token is missing or invalid by returning appropriate error messages and status codes.
+  Testing:
+    Write unit tests to cover successful and failure cases (unauthorized access, invalid tokens, etc.).
+    Ensure the tests check the response data and status codes.
+    Suggested Steps for Implementation:
+  Authentication Check: Ensure the user is authenticated using a JWT token in the Authorization header.
+  Fetch User Profile:
+    After authentication, use the user ID from the decoded token to fetch the user from the database.
+    Return the user’s profile data (username, email, roles).
+    Error Handling:
+      Handle cases where the token is missing or invalid.
+      Ensure users cannot access another user’s profile.
+  How to Test:
+    Send a GET request to /profile with a valid JWT token.
+    Expected Result: The user profile should be returned (status code 200).
+    Send a GET request to /profile without an Authorization token.
+    Expected Result: The server should return 401 Unauthorized.
+    Send a GET request to /profile with an invalid or expired token.
+    Expected Result: The server should return 401 Unauthorized.
+Additional Notes:
+Ensure that the /profile endpoint follows best practices for securing user data.
+Consider implementing proper logging for authentication failures.
+
+
+###########################################################
+
+Ticket1: Find and Fix security issues:
+
+Title: Fix Sensitive Data Exposure in API Responses
+
+Description: As an end user, I want my personal and sensitive information, such as my password and other sensitive attributes, to be securely handled by the application so that it is not exposed in API responses or logs. This will ensure my privacy is protected and reduce the risk of security breaches.
+
+Acceptance Criteria:
+  Profile Data Sanitization: Ensure sensitive information like password is never returned in API responses such as the /profile endpoint or any other API response.
+  Error Handling: Ensure that error messages do not expose sensitive internal details about the database or application logic (e.g., stack traces or SQL errors).
+  Unit Tests: Write tests to verify that sensitive information is not present in the API response.
+  Implementation of Solution for Ticket 1:
+  In your models.py, ensure that the password field or any other sensitive fields are excluded from being serialized in API responses:
+
+python
+# app/routes/user_routes.py
+
+@user_bp.route("/profile", methods=["GET"])
+@token_required
+def profile(current_user):
+    """
+    Retrieve the profile of the logged-in user, excluding sensitive fields like password.
+    """
+    profile_data = {
+        "username": current_user.username,
+        "email": current_user.email,
+        "roles": [role.role_name for role in current_user.roles],
+    }
+    return jsonify(profile_data), 200
+Test:
+python
+def test_profile_no_sensitive_data(client, regular_user):
+    """Ensure that sensitive fields like password are not returned in the response."""
+    token = generate_jwt(regular_user)
+    headers = {"Authorization": f"Bearer {token}"}
+
+    response = client.get("/profile", headers=headers)
+    json_data = response.get_json()
+
+    assert response.status_code == 200
+    assert "password" not in json_data  # Ensure password is not returned
+
+PR Instructions:
+Fix any routes exposing sensitive data.
+Write unit tests ensuring sensitive data is not exposed.
+Add comments in the README file regarding the changes.
+
+
+#############################################################
+
+
+Ticket 2: Improve the Build Process
+Title: Add Security Scanning and Code Coverage to Build Pipeline
+
+Description: As a developer, I want the CI build to include security scanning and code coverage analysis so that we can automatically detect vulnerabilities and ensure high-quality code coverage for better security and stability of the application.
+
+Acceptance Criteria:
+  Security Scanning: Add a step in the build process to run a security scanner (e.g., Bandit, or another tool) to check for vulnerabilities.
+  Code Coverage: Integrate code coverage tools like coverage.py into the build pipeline, ensuring the code coverage is reported after the tests.
+  Build Status: The build should fail if critical vulnerabilities are found or if code coverage drops below a certain threshold (e.g., 80%).
+  CI Pipeline Update:
+  Update the GitHub Actions workflow file:
+
+yaml
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12'
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          poetry install
+
+      - name: Run linting with black
+        run: |
+          poetry run black --check .
+
+      - name: Run security scan with Bandit
+        run: |
+          poetry run bandit -r app
+
+      - name: Run tests with coverage
+        run: |
+          poetry run pytest --cov=app --cov-report=term-missing
+PR Instructions:
+Implement security scanning and coverage reporting.
+Add notes in the README for developers about using Bandit and how to view code coverage results.
+
+
+#############################################################
+
+Ticket 3: Move to PostgreSQL
+Title: Migrate from SQLite to PostgreSQL
+
+Description: As a developer, I want to migrate our database from SQLite to PostgreSQL to align with our production-grade infrastructure and ensure the application can handle larger workloads and advanced database features such as transactions and scalability.
+
+Acceptance Criteria:
+  Database Configuration: Replace SQLite with PostgreSQL in the application configuration.
+  Migration: Use Flask-Migrate to ensure seamless migration of the existing schema from SQLite to PostgreSQL.
+  Environment Variables: Update the .env file to include PostgreSQL database connection details (e.g., POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, etc.).
+  Documentation: Update the README file to explain how to configure PostgreSQL for local development.
+
+Implementation:
+In config.py, replace the SQLite connection with PostgreSQL:
+
+python
+class Config:
+    SECRET_KEY = os.getenv("SECRET_KEY", "mysecret")
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        "DATABASE_URI", "postgresql://user:password@localhost/db_name"
+    )
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+In .env:
+
+bash
+DATABASE_URI=postgresql://postgres_user:password@localhost:5432/db_name
+
+PR Instructions:
+  Update the database configuration to use PostgreSQL.
+  Document in the README how to set up PostgreSQL locally.
+  Provide migration instructions to other developers.
+
+
+###############################################################
+
+Ticket 4: Implement Proper Debugging Practices and Logging
+Title: Replace Print Statements with Logging and Proper Debugging Tools (VSCode Integration)
+
+Description: As a developer, I want to avoid using print statements for debugging purposes and instead rely on logging and IDE debugging tools, like VSCode, to ensure that our application is maintainable, professional, and follows best practices. This will help in debugging without cluttering the codebase and provide a more systematic way to trace issues.
+
+Acceptance Criteria:
+  Remove print Statements: Ensure there are no print statements used for debugging in the codebase.
+  Implement Logging: Add a logging system to track critical events (e.g., info, errors, warnings) in both development and production environments.
+  VSCode Debugger Integration: Document how to set up and use VSCode's debugger for the project, showing how to set breakpoints and inspect variables.
+  Log Levels: Implement different log levels (e.g., DEBUG, INFO, ERROR) to provide better visibility into application behavior.
+  README Documentation: Include a guide on how to use VSCode for debugging and how to work with the logging system in the README.
+
+Testing:
+  Ensure that all print statements are removed.
+  Check logs to ensure the logging system is working correctly and logs are written to the file.
+  Verify the proper integration of VSCode’s debugger by running the app with breakpoints set and inspecting variable states.
+
+PR Instructions:
+  Remove all print statements.
+  Implement logging according to best practices with different log levels.
+  Provide VSCode debugging instructions in the README.
+  Add unit tests to verify that logs are correctly recorded for critical parts of the app.
