@@ -12,6 +12,14 @@ def app():
     # Create the app using the loaded environment configuration
     app = create_app()
 
+    app.config.update(
+        {
+            "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+            "TESTING": True,
+            "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+        }
+    )
+
     with app.app_context():
         db.create_all()  # Create tables
         yield app  # Yield the app while the context is active
