@@ -10,6 +10,7 @@ load_dotenv()
 @pytest.fixture
 def app():
     # Create the app using the loaded environment configuration
+    os.environ["FLASK_ENV"] = "testing"
     app = create_app()
 
     with app.app_context():

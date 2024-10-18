@@ -30,6 +30,11 @@ jobs:
         run: |
           poetry install
 
+      - name: Set environment variables from GitHub Secrets
+        run: |
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
+          echo "DATABASE_URI=${{ secrets.DATABASE_URI }}" >> $GITHUB_ENV
+
       - name: Run linting with black
         run: |
           poetry run black --check .
